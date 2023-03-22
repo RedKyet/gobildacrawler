@@ -4,6 +4,7 @@ import os
 import zipfile
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
+from os.path import exists
 
 """with open("tmp.zip",'wb') as f:
     f.write(requests.get("https://www.gobilda.com/content/step_files/2000-0025-0002.zip").content)
@@ -28,14 +29,14 @@ def get_links(url):
     links = set()
     for link in soup.find_all('a'):
         link_url = link.get('href')
-        if link_url:
+        if link_url and not str(link_url).endswith('.zip') and str(link_url).count("/")>3:
             absolute_link = urljoin(url, link_url)
             if absolute_link.startswith(domain):
                 links.add(absolute_link)
     return links
  
 if __name__ == '__main__':
-    url = 'https://gobilda.com/'
+    url = 'https://www.gobilda.com/sitemap/categories/'
     domain = get_domain(url)
     queue = [url]
     visited = set()
@@ -48,18 +49,35 @@ if __name__ == '__main__':
         stepf = page.find('a', href=re.compile('/content/step_files/'))
         
         if stepf:
+            
             part_name = page.find('h1',{"class": "productView-title"}).contents[0]
             part_name = ''.join(e for e in part_name if e.isalnum() or e in"() -,.")
-            #part_name = url.split("/")[-1]
-            stepf_link = "https://www.gobilda.com{}".format(stepf['href'])
-            print(stepf_link)
-            with open("tmp.zip",'wb') as f:
-                f.write(requests.get(stepf_link).content)
-            with zipfile.ZipFile('tmp.zip', 'r') as zip:
-                zip.extractall()
-                files_in_zip = zip.namelist()
-            for file in files_in_zip:
-                os.rename(file,"{}.step".format(part_name))
+            if not exists("{}.step".format(part_name)):
+                #part_name = url.split("/")[-1]
+                stepf_link = "https://www.gobilda.com{}".format(stepf['href'])
+                print(stepf_link)
+                with open("tmp.zip",'wb') as f:
+                    f.write(requests.get(stepf_link).content)
+                with zipfile.ZipFile('tmp.zip', 'r') as zip:
+                    zip.extractall()
+                    files_in_zip = zip.namelist()
+                for file in files_in_zip:
+                    if file.split('.')[-1] == "step" or file.split('.')[-1] == "STEP":
+                        term = file.split(" ")
+                        end=""
+                        for i in range (1,(len(term))):
+                            end = end+term[i]
+                        end = end.split('.')[0]
+                        name = file,"{}{}.step".format(part_name,end)
+                        if exists(name):
+                            os.remove(file)
+                        else:
+                            os.rename(name)
+                    elif file.split('.')[-1] in ("zip","py","git","gitignore"):
+                        pass
+                    else:
+                        os.remove(file)
+            else: print("file already exists")
         links = get_links(url)
         for link in links:
             if link not in visited and link not in queue:
