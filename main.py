@@ -68,11 +68,11 @@ if __name__ == '__main__':
                         for i in range (1,(len(term))):
                             end = end+term[i]
                         end = end.split('.')[0]
-                        name = file,"{}{}.step".format(part_name,end)
+                        name = "{}{}.step".format(part_name,end)
                         if exists(name):
                             os.remove(file)
                         else:
-                            os.rename(name)
+                            os.rename(file,name)
                     elif file.split('.')[-1] in ("zip","py","git","gitignore"):
                         pass
                     else:
