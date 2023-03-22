@@ -1,5 +1,7 @@
 import requests
 import re
+import os
+import zipfile
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 
@@ -33,7 +35,7 @@ def get_links(url):
     return links
  
 if __name__ == '__main__':
-    url = 'https://gobilda.com'
+    url = 'https://gobilda.com/'
     domain = get_domain(url)
     queue = [url]
     visited = set()
@@ -44,10 +46,20 @@ if __name__ == '__main__':
         print(url)
         page = BeautifulSoup(requests.get(url).content, "html.parser")
         stepf = page.find('a', href=re.compile('/content/step_files/'))
+        
         if stepf:
-            print("https://www.gobilda.com{}".format(stepf['href']))
-        
-        
+            part_name = page.find('h1',{"class": "productView-title"}).contents[0]
+            part_name = ''.join(e for e in part_name if e.isalnum() or e in"() -,.")
+            #part_name = url.split("/")[-1]
+            stepf_link = "https://www.gobilda.com{}".format(stepf['href'])
+            print(stepf_link)
+            with open("tmp.zip",'wb') as f:
+                f.write(requests.get(stepf_link).content)
+            with zipfile.ZipFile('tmp.zip', 'r') as zip:
+                zip.extractall()
+                files_in_zip = zip.namelist()
+            for file in files_in_zip:
+                os.rename(file,"{}.step".format(part_name))
         links = get_links(url)
         for link in links:
             if link not in visited and link not in queue:
