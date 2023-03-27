@@ -26,8 +26,8 @@ def get_links(url):
     return links
  
 if __name__ == '__main__':
-    #url = 'https://www.gobilda.com/sitemap/categories/'
-    url = 'https://www.gobilda.com/1118-series-open-gorail-48mm-length/'
+    url = 'https://www.gobilda.com/sitemap/categories/'
+    #url = 'https://www.gobilda.com/1118-series-open-gorail-48mm-length/'
     domain = get_domain(url)
     if not os.path.isdir("steps"):
         os.mkdir("steps")
