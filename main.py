@@ -27,7 +27,7 @@ def get_links(url):
  
 if __name__ == '__main__':
     url = 'https://www.gobilda.com/sitemap/categories/'
-    #url = 'https://www.gobilda.com/2104-series-aluminum-rex-shaft-12mm-diameter-88mm-length/'
+    #url = 'https://www.gobilda.com/2315-series-steel-mod-1-25-miter-gear-8mm-rex-bore-30-tooth/'
     domain = get_domain(url)
     if not os.path.isdir("steps"):
         os.mkdir("steps")
@@ -46,6 +46,7 @@ if __name__ == '__main__':
             category = ""
             for cat in subcats:
                 category = category + "/" + cat.contents[0]
+            category = ''.join(e for e in category if e.isalnum() or e in"() -,.")
             print(category[1:])
             if not os.path.isdir("steps/"+category):
                 os.makedirs("steps/"+category)
