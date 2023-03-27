@@ -1,22 +1,12 @@
 import requests
 import re
 import os
+import glob
+import shutil
 import zipfile
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 from os.path import exists
-
-"""with open("tmp.zip",'wb') as f:
-    f.write(requests.get("https://www.gobilda.com/content/step_files/2000-0025-0002.zip").content)
-
-with zipfile.ZipFile('tmp.zip', 'r') as zip_ref:
-    zip_ref.extractall()
-
-with open("content.txt",'wb') as f:
-    f.write(requests.get("https://www.gobilda.com/sitemap/categories/").content)"""
-
-#search for pages containing st links, save url name and download stl
-
  
 def get_domain(url):
     parsed_uri = urlparse(url)
@@ -36,10 +26,11 @@ def get_links(url):
     return links
  
 if __name__ == '__main__':
-    url = 'https://www.gobilda.com/sitemap/categories/'
+    #url = 'https://www.gobilda.com/sitemap/categories/'
+    url = 'https://www.gobilda.com/1118-series-open-gorail-48mm-length/'
     domain = get_domain(url)
-    if not os.path.isdir("unzipped_tmp"):
-        os.mkdir("unzipped_tmp")
+    if not os.path.isdir("steps"):
+        os.mkdir("steps")
     queue = [url]
     visited = set()
  
@@ -51,34 +42,40 @@ if __name__ == '__main__':
         stepf = page.find('a', href=re.compile('/content/step_files/'))
         
         if stepf:
-            
+            subcats = page.find_all('a', {"class": "breadcrumb-label"})
+            category = ""
+            for cat in subcats:
+                category = category + "/" + cat.contents[0]
+            print(category[1:])
+            if not os.path.isdir("steps/"+category):
+                os.makedirs("steps/"+category)
             part_name = page.find('h1',{"class": "productView-title"}).contents[0]
             part_name = ''.join(e for e in part_name if e.isalnum() or e in"() -,.")
-            if not exists("{}.step".format(part_name)):
+            if not exists("steps/"+category+"/"+"{}.step".format(part_name)):
+                if not os.path.isdir("unzipped_tmp"):
+                    os.mkdir("unzipped_tmp")
                 #part_name = url.split("/")[-1]
                 stepf_link = "https://www.gobilda.com{}".format(stepf['href'])
                 print(stepf_link)
                 with open("tmp.zip",'wb') as f:
                     f.write(requests.get(stepf_link).content)
                 with zipfile.ZipFile('tmp.zip', 'r') as zip:
-                    zip.extractall()
-                    files_in_zip = zip.namelist()
+                    zip.extractall(path="unzipped_tmp/")
+                    #files_in_zip = zip.namelist()
+                files_in_zip = glob.iglob("unzipped_tmp/**/*.*", recursive=True)
                 for file in files_in_zip:
-                    if file.split('.')[-1] == "step" or file.split('.')[-1] == "STEP":
-                        term = file.split(" ")
+                    #file="unzipped_tmp/"+file
+                    filen = file.split("\\")[-1]
+                    if filen.split('.')[-1] == "step" or filen.split('.')[-1] == "STEP":
+                        term = filen.split(" ")
                         end=""
                         for i in range (1,(len(term))):
                             end = end+term[i]
                         end = end.split('.')[0]
                         name = "{}{}.step".format(part_name,end)
-                        if exists(name):
-                            os.remove(file)
-                        else:
-                            os.rename(file,name)
-                    elif file.split('.')[-1] in ("zip","py","git","gitignore"):
-                        pass
-                    else:
-                        os.remove(file)
+                        if not exists(path="steps/"+category+"/"+name):
+                            os.rename(file,"steps/"+category+"/"+name)
+                shutil.rmtree("unzipped_tmp")
             else: print("file already exists")
         links = get_links(url)
         for link in links:
