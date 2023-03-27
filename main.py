@@ -26,8 +26,8 @@ def get_links(url):
     return links
  
 if __name__ == '__main__':
-    #url = 'https://www.gobilda.com/sitemap/categories/'
-    url = 'https://www.gobilda.com/2106-series-stainless-steel-rex-shaft-8mm-diameter-40mm-length/'
+    url = 'https://www.gobilda.com/sitemap/categories/'
+    #url = 'https://www.gobilda.com/2106-series-stainless-steel-rex-shaft-8mm-diameter-40mm-length/'
     domain = get_domain(url)
     if not os.path.isdir("steps"):
         os.mkdir("steps")
