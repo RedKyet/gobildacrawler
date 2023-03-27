@@ -46,7 +46,7 @@ if __name__ == '__main__':
             category = ""
             for cat in subcats:
                 category = category + "/" + cat.contents[0]
-            category = ''.join(e for e in category if e.isalnum() or e in"() -,.")
+            category = ''.join(e for e in category if e.isalnum() or e in"() -/,.")
             print(category[1:])
             if not os.path.isdir("steps/"+category):
                 os.makedirs("steps/"+category)
