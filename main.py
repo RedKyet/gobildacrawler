@@ -38,6 +38,8 @@ def get_links(url):
 if __name__ == '__main__':
     url = 'https://www.gobilda.com/sitemap/categories/'
     domain = get_domain(url)
+    if not os.path.isdir("unzipped_tmp"):
+        os.mkdir("unzipped_tmp")
     queue = [url]
     visited = set()
  
