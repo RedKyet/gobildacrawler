@@ -26,8 +26,8 @@ def get_links(url):
     return links
  
 if __name__ == '__main__':
-    url = 'https://www.gobilda.com/sitemap/categories/'
-    #url = 'https://www.gobilda.com/1118-series-open-gorail-48mm-length/'
+    #url = 'https://www.gobilda.com/sitemap/categories/'
+    url = 'https://www.gobilda.com/2104-series-aluminum-rex-shaft-12mm-diameter-88mm-length/'
     domain = get_domain(url)
     if not os.path.isdir("steps"):
         os.mkdir("steps")
@@ -59,6 +59,7 @@ if __name__ == '__main__':
                 print(stepf_link)
                 with open("tmp.zip",'wb') as f:
                     f.write(requests.get(stepf_link).content)
+                    f.flush
                 with zipfile.ZipFile('tmp.zip', 'r') as zip:
                     zip.extractall(path="unzipped_tmp/")
                     #files_in_zip = zip.namelist()
