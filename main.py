@@ -84,3 +84,4 @@ if __name__ == '__main__':
         for link in links:
             if link not in visited and link not in queue:
                 queue.append(link)
+    print("done")
