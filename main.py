@@ -26,8 +26,8 @@ def get_links(url):
     return links
  
 if __name__ == '__main__':
-    url = 'https://www.gobilda.com/sitemap/categories/'
-    #url = 'https://www.gobilda.com/2315-series-steel-mod-1-25-miter-gear-8mm-rex-bore-30-tooth/'
+    #url = 'https://www.gobilda.com/sitemap/categories/'
+    url = 'https://www.gobilda.com/2106-series-stainless-steel-rex-shaft-8mm-diameter-40mm-length/'
     domain = get_domain(url)
     if not os.path.isdir("steps"):
         os.mkdir("steps")
@@ -45,8 +45,9 @@ if __name__ == '__main__':
             subcats = page.find_all('a', {"class": "breadcrumb-label"})
             category = ""
             for cat in subcats:
+                cat.contents[0] = ''.join(e for e in cat.contents[0] if e.isalnum() or e in"() -,.&")
+                if cat.contents[0][-1]== " ": cat.contents[0] = cat.contents[0][0:-1]
                 category = category + "/" + cat.contents[0]
-            category = ''.join(e for e in category if e.isalnum() or e in"() -/,.&")
             print(category[1:])
             if not os.path.isdir("steps/"+category):
                 os.makedirs("steps/"+category)
